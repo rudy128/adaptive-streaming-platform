@@ -1,6 +1,3 @@
-/**
- * Format seconds into mm:ss or h:mm:ss
- */
 function formatDuration(seconds) {
   if (!seconds || seconds <= 0) return null;
   const s = Math.round(seconds);
@@ -13,10 +10,6 @@ function formatDuration(seconds) {
   return `${m}:${String(sec).padStart(2, '0')}`;
 }
 
-/**
- * Video thumbnail card for the catalog grid.
- * Shows thumbnail with duration badge and title only.
- */
 export default function VideoCard({ video, onClick }) {
   const duration = formatDuration(video.duration);
 

@@ -28,7 +28,6 @@ export function initWebSocketServer(server) {
     }
   });
 
-  // Periodic presence cleanup + admin broadcast + history recording
   setInterval(async () => {
     const removed = await cleanupStaleViewers();
     if (removed > 0) console.log(`[Presence] Cleaned up ${removed} stale viewers`);

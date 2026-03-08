@@ -34,11 +34,6 @@ export function getAnalyticsHistory(minutes = 60) {
   return request(`/analytics/history?minutes=${minutes}`);
 }
 
-/**
- * Upload a video file with metadata.
- * @param {File} file
- * @param {{ title: string, description?: string }} meta
- */
 export async function uploadVideo(file, meta) {
   const formData = new FormData();
   formData.append('video', file);

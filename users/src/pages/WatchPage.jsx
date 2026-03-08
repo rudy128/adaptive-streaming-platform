@@ -41,7 +41,6 @@ export default function WatchPage({ video, onBack, onSelectVideo }) {
 
   return (
     <div className="watch-page">
-      {/* ── Main column ──────────────────────────── */}
       <div className="watch-main">
         <button className="back-btn" onClick={onBack}>
           ← Back
@@ -64,7 +63,6 @@ export default function WatchPage({ video, onBack, onSelectVideo }) {
         </div>
       </div>
 
-      {/* ── Sidebar ──────────────────────────────── */}
       {otherVideos.length > 0 && (
         <aside className="watch-sidebar">
           <p className="sidebar-heading">More videos</p>

@@ -1,4 +1,3 @@
-/* ── Layout ─────────────────────────────────────────── */
 .app {
   max-width: 1100px;
   margin: 0 auto;
@@ -20,7 +19,6 @@
   color: #fff;
 }
 
-/* ── Tabs ───────────────────────────────────────────── */
 nav {
   display: flex;
   gap: 0.5rem;
@@ -45,7 +43,6 @@ nav {
   color: #fff;
 }
 
-/* ── Upload Form ────────────────────────────────────── */
 .upload-form {
   background: #181818;
   padding: 1.5rem;
@@ -106,7 +103,6 @@ nav {
   font-size: 0.875rem;
 }
 
-/* ── Video List ─────────────────────────────────────── */
 .video-list h2 {
   margin-top: 0;
   color: #fff;
@@ -173,7 +169,6 @@ td {
   color: #52525b;
 }
 
-/* ── Analytics ──────────────────────────────────────── */
 .analytics-dashboard h2 {
   display: flex;
   align-items: center;
@@ -219,7 +214,6 @@ td {
   color: #71717a;
 }
 
-/* ── Chart section ──────────────────────────────────── */
 .chart-section {
   background: #181818;
   border: 1px solid #272727;
@@ -257,7 +251,6 @@ td {
   color: #fff;
 }
 
-/* ── Per-video table (analytics) ────────────────────── */
 .analytics-table-section {
   margin-top: 1.5rem;
 }

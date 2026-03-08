@@ -66,7 +66,6 @@ export default function AnalyticsDashboard() {
         </div>
       )}
 
-      {/* ── Concurrent viewers chart ──────────────── */}
       <div className="chart-section">
         <h3>Concurrent Viewers Over Time</h3>
 
@@ -125,7 +124,6 @@ export default function AnalyticsDashboard() {
         </ResponsiveContainer>
       </div>
 
-      {/* ── Per-video table ───────────────────────── */}
       {analytics && analytics.videos.length > 0 && (
         <div className="analytics-table-section">
           <h3>Per-Video Stats</h3>

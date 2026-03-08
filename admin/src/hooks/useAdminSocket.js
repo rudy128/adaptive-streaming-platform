@@ -1,9 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-/**
- * Hook that manages a WebSocket connection to the admin analytics endpoint.
- * Automatically reconnects on disconnect.
- */
 export function useAdminSocket() {
   const [analytics, setAnalytics] = useState(null);
   const [connected, setConnected] = useState(false);
@@ -36,7 +32,7 @@ export function useAdminSocket() {
             setAnalytics(msg.data);
           }
         } catch {
-          // ignore malformed messages
+          void 0;
         }
       };
 

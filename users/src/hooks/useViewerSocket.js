@@ -2,10 +2,6 @@ import { useEffect, useRef, useCallback } from 'react';
 
 const HEARTBEAT_INTERVAL = 5000;
 
-/**
- * Hook that manages a WebSocket connection for viewer presence tracking.
- * Sends play / pause / heartbeat / stop events.
- */
 export function useViewerSocket() {
   const wsRef = useRef(null);
   const heartbeatRef = useRef(null);
@@ -32,7 +28,7 @@ export function useViewerSocket() {
           sessionIdRef.current = msg.sessionId;
         }
       } catch {
-        // ignore
+        void 0;
       }
     };
 
@@ -56,7 +52,6 @@ export function useViewerSocket() {
     (videoId) => {
       send({ type: 'play', videoId });
 
-      // Start heartbeat
       clearInterval(heartbeatRef.current);
       heartbeatRef.current = setInterval(() => {
         send({ type: 'heartbeat' });

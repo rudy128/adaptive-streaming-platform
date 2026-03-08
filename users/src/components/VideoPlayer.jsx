@@ -1,28 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 
-/**
- * HLS Video Player component.
- *
- * Uses hls.js for adaptive bitrate streaming.
- * Falls back to native HLS on Safari.
- * Includes a manual quality selector (Auto / 1080p / 720p / 480p).
- *
- * @param {{ src: string, onPlay?: () => void, onPause?: () => void, onEnded?: () => void }} props
- */
 export default function VideoPlayer({ src, onPlay, onPause, onEnded }) {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
 
-  /** Available quality levels reported by hls.js */
   const [levels, setLevels] = useState([]);
-  /** Currently active level index (-1 = auto) */
   const [currentLevel, setCurrentLevel] = useState(-1);
-  /** Height of the currently playing level (for display) */
   const [currentHeight, setCurrentHeight] = useState(null);
-  /** Whether the user chose "Auto" (default) */
   const [isAuto, setIsAuto] = useState(true);
-  /** Whether the quality menu is open */
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -34,7 +20,7 @@ export default function VideoPlayer({ src, onPlay, onPause, onEnded }) {
         enableWorker: true,
         lowLatencyMode: false,
         autoStartLoad: true,
-        startLevel: -1, // auto
+        startLevel: -1,
       });
 
       hls.loadSource(src);
@@ -42,7 +28,6 @@ export default function VideoPlayer({ src, onPlay, onPause, onEnded }) {
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         console.log('[HLS] Manifest parsed — levels:', hls.levels.length);
-        // Expose available levels (sorted highest → lowest)
         const sorted = hls.levels
           .map((l, i) => ({ index: i, height: l.height, width: l.width, bitrate: l.bitrate }))
           .sort((a, b) => b.height - a.height);
@@ -85,18 +70,15 @@ export default function VideoPlayer({ src, onPlay, onPause, onEnded }) {
         setIsAuto(true);
       };
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Native HLS (Safari) — no manual quality control available
       video.src = src;
     }
   }, [src]);
 
-  /** Set a specific quality level, or -1 for auto */
   const selectQuality = useCallback((levelIndex) => {
     const hls = hlsRef.current;
     if (!hls) return;
 
     if (levelIndex === -1) {
-      // Auto: let hls.js pick
       hls.currentLevel = -1;
       setIsAuto(true);
     } else {
@@ -106,7 +88,6 @@ export default function VideoPlayer({ src, onPlay, onPause, onEnded }) {
     setMenuOpen(false);
   }, []);
 
-  /** Label for the current quality shown on the button */
   const activeLabel = isAuto
     ? `Auto${currentHeight ? ` (${currentHeight}p)` : ''}`
     : `${currentHeight ?? '…'}p`;
@@ -121,7 +102,6 @@ export default function VideoPlayer({ src, onPlay, onPause, onEnded }) {
         onEnded={onEnded}
       />
 
-      {/* ── Quality overlay on the video canvas ────── */}
       {levels.length > 1 && (
         <div className="quality-overlay">
           <button
