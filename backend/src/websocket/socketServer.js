@@ -9,6 +9,7 @@ import {
 import { recordView } from '../services/analyticsService.js';
 import { createView, endView } from '../db/repositories/viewRepository.js';
 import { getAnalyticsSnapshot } from '../services/analyticsService.js';
+import { recordSnapshot, purgeOldHistory } from '../db/repositories/concurrentHistoryRepository.js';
 import env from '../config/env.js';
 
 /** @type {Set<import('ws').WebSocket>} Admin dashboard connections */
@@ -32,12 +33,33 @@ export function initWebSocketServer(server) {
     }
   });
 
-  // Periodic presence cleanup + admin broadcast
+  // Periodic presence cleanup + admin broadcast + history recording
   setInterval(async () => {
     const removed = await cleanupStaleViewers();
     if (removed > 0) console.log(`[Presence] Cleaned up ${removed} stale viewers`);
-    broadcastAnalytics();
+    await broadcastAnalytics();
   }, env.heartbeatInterval);
+
+  // Record concurrent viewer snapshot every 10s for the graph
+  setInterval(async () => {
+    try {
+      const snapshot = await getAnalyticsSnapshot();
+      await recordSnapshot({
+        activeUsers: snapshot.activeUsers,
+        perVideo: snapshot.videos.map((v) => ({
+          videoId: v.videoId,
+          viewers: v.concurrentViewers,
+        })),
+      });
+    } catch (err) {
+      console.error('[History] Failed to record snapshot:', err.message);
+    }
+  }, 10_000);
+
+  // Purge old history once per hour
+  setInterval(() => {
+    purgeOldHistory(24).catch(() => {});
+  }, 3600_000);
 
   console.log('[WS] WebSocket server initialized on /ws');
 }

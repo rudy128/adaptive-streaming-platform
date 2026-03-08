@@ -25,6 +25,28 @@ function runCommand(cmd, args) {
 }
 
 /**
+ * Probe a media file and return its duration in seconds.
+ */
+function probeDuration(filePath) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn('ffprobe', [
+      '-v', 'error',
+      '-show_entries', 'format=duration',
+      '-of', 'csv=p=0',
+      filePath,
+    ]);
+    let output = '';
+    proc.stdout.on('data', (chunk) => { output += chunk; });
+    proc.on('close', (code) => {
+      if (code !== 0) return reject(new Error(`ffprobe exited with code ${code}`));
+      const seconds = parseFloat(output.trim());
+      resolve(Number.isFinite(seconds) ? seconds : 0);
+    });
+    proc.on('error', reject);
+  });
+}
+
+/**
  * Full encoding pipeline for a single video.
  *
  * 1) Transcode to multiple HLS resolutions
@@ -41,6 +63,15 @@ export async function encodeVideo(videoId, inputPath) {
   await mkdir(workDir, { recursive: true });
 
   console.log(`[Encoder] Starting encode for ${videoId}`);
+
+  // ── 0. Probe duration ───────────────────────────────────────
+  let duration = 0;
+  try {
+    duration = await probeDuration(inputPath);
+    console.log(`[Encoder] Duration: ${duration.toFixed(1)}s`);
+  } catch (err) {
+    console.warn('[Encoder] Could not probe duration:', err.message);
+  }
 
   // ── 1. Transcode each resolution ────────────────────────────
   for (const res of RESOLUTIONS) {
@@ -125,6 +156,7 @@ export async function encodeVideo(videoId, inputPath) {
     await updateVideo(videoId, {
       thumbnail_url: thumbnailUrl,
       master_playlist_url: masterPlaylistUrl,
+      duration,
       status: 'ready',
     });
 

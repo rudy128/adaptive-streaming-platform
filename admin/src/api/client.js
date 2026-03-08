@@ -30,6 +30,10 @@ export function getAnalytics() {
   return request('/analytics');
 }
 
+export function getAnalyticsHistory(minutes = 60) {
+  return request(`/analytics/history?minutes=${minutes}`);
+}
+
 /**
  * Upload a video file with metadata.
  * @param {File} file

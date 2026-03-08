@@ -47,6 +47,20 @@ async function migrate() {
     CREATE INDEX IF NOT EXISTS idx_video_views_session_id ON video_views(session_id);
   `);
 
+  await query(`
+    CREATE TABLE IF NOT EXISTS concurrent_history (
+      id            SERIAL PRIMARY KEY,
+      recorded_at   TIMESTAMPTZ DEFAULT NOW(),
+      active_users  INTEGER DEFAULT 0,
+      video_id      UUID REFERENCES videos(id) ON DELETE CASCADE,
+      viewers       INTEGER DEFAULT 0
+    );
+  `);
+
+  await query(`
+    CREATE INDEX IF NOT EXISTS idx_concurrent_history_recorded_at ON concurrent_history(recorded_at);
+  `);
+
   console.log('[DB] Migrations complete ✓');
 }
 

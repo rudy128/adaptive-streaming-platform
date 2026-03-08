@@ -112,21 +112,20 @@ export default function VideoPlayer({ src, onPlay, onPause, onEnded }) {
     : `${currentHeight ?? '…'}p`;
 
   return (
-    <div className="video-player">
+    <div className="video-player-wrapper">
       <video
         ref={videoRef}
         controls
         onPlay={onPlay}
         onPause={onPause}
         onEnded={onEnded}
-        style={{ width: '100%', maxWidth: '960px', borderRadius: '8px', background: '#000' }}
       />
 
-      {/* ── Quality selector ──────────────────────────── */}
+      {/* ── Quality overlay on the video canvas ────── */}
       {levels.length > 1 && (
-        <div className="quality-selector">
+        <div className="quality-overlay">
           <button
-            className="quality-btn"
+            className="quality-toggle"
             onClick={() => setMenuOpen((o) => !o)}
             title="Change quality"
           >
@@ -141,9 +140,7 @@ export default function VideoPlayer({ src, onPlay, onPause, onEnded }) {
               >
                 Auto
                 {isAuto && currentHeight && (
-                  <span className="quality-badge">
-                    {currentHeight}p
-                  </span>
+                  <span className="quality-badge">{currentHeight}p</span>
                 )}
               </li>
               {levels.map((lvl) => (

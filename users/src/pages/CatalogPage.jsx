@@ -24,20 +24,17 @@ export default function CatalogPage({ onSelectVideo }) {
     return () => { cancelled = true; };
   }, []);
 
-  if (loading) return <p className="loading">Loading catalog…</p>;
+  if (loading) return <p className="loading">Loading…</p>;
 
   if (videos.length === 0) {
     return <p className="empty">No videos available yet.</p>;
   }
 
   return (
-    <div className="catalog">
-      <h2>Browse Videos</h2>
-      <div className="catalog-grid">
-        {videos.map((video) => (
-          <VideoCard key={video.id} video={video} onClick={onSelectVideo} />
-        ))}
-      </div>
+    <div className="catalog-grid">
+      {videos.map((video) => (
+        <VideoCard key={video.id} video={video} onClick={onSelectVideo} />
+      ))}
     </div>
   );
 }

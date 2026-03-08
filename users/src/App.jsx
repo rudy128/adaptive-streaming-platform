@@ -16,7 +16,11 @@ function App() {
 
       <main className="app-main">
         {selectedVideo ? (
-          <WatchPage video={selectedVideo} onBack={() => setSelectedVideo(null)} />
+          <WatchPage
+            video={selectedVideo}
+            onBack={() => setSelectedVideo(null)}
+            onSelectVideo={setSelectedVideo}
+          />
         ) : (
           <CatalogPage onSelectVideo={setSelectedVideo} />
         )}
