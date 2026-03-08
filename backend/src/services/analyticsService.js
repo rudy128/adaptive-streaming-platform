@@ -9,16 +9,10 @@ import {
   getGlobalActiveUsers,
 } from './presenceService.js';
 
-/**
- * Record that a new view started for a video.
- */
 export async function recordView(videoId) {
   await incrementTotalViews(videoId);
 }
 
-/**
- * Build the complete analytics snapshot for the admin dashboard.
- */
 export async function getAnalyticsSnapshot() {
   const videos = await getAllVideos();
   const activeUsers = await getGlobalActiveUsers();
@@ -27,7 +21,7 @@ export async function getAnalyticsSnapshot() {
     videos.map(async (video) => {
       const concurrentViewers = await getConcurrentViewers(video.id);
       const analytics = await upsertAnalytics(video.id, {
-        totalViews: undefined,        // don't overwrite
+        totalViews: undefined,
         concurrentViewers: Number(concurrentViewers),
       });
 

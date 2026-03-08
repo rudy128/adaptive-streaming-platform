@@ -9,7 +9,6 @@ const s3Config = {
   },
 };
 
-// Support S3-compatible providers (Supabase, MinIO, etc.)
 if (env.aws.endpoint) {
   s3Config.endpoint = env.aws.endpoint;
   s3Config.forcePathStyle = env.aws.forcePathStyle;

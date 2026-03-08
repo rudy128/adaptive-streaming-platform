@@ -11,9 +11,6 @@ const RESOLUTIONS = [
   { name: '480p',  width: 854,  height: 480,  bitrate: '1400k', maxrate: '1498k', bufsize: '2100k' },
 ];
 
-/**
- * Run a shell command and return a promise.
- */
 function runCommand(cmd, args) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, { stdio: 'inherit' });
@@ -24,9 +21,6 @@ function runCommand(cmd, args) {
   });
 }
 
-/**
- * Probe a media file and return its duration in seconds.
- */
 function probeDuration(filePath) {
   return new Promise((resolve, reject) => {
     const proc = spawn('ffprobe', [
@@ -46,25 +40,12 @@ function probeDuration(filePath) {
   });
 }
 
-/**
- * Full encoding pipeline for a single video.
- *
- * 1) Transcode to multiple HLS resolutions
- * 2) Generate master playlist
- * 3) Extract thumbnail
- * 4) Upload everything to S3
- * 5) Update database record
- *
- * @param {string} videoId     UUID of the video row
- * @param {string} inputPath   Absolute path to uploaded original file
- */
 export async function encodeVideo(videoId, inputPath) {
   const workDir = path.join('/tmp', 'encoding', videoId);
   await mkdir(workDir, { recursive: true });
 
   console.log(`[Encoder] Starting encode for ${videoId}`);
 
-  // ── 0. Probe duration ───────────────────────────────────────
   let duration = 0;
   try {
     duration = await probeDuration(inputPath);
@@ -73,7 +54,6 @@ export async function encodeVideo(videoId, inputPath) {
     console.warn('[Encoder] Could not probe duration:', err.message);
   }
 
-  // ── 1. Transcode each resolution ────────────────────────────
   for (const res of RESOLUTIONS) {
     const resDir = path.join(workDir, res.name);
     await mkdir(resDir, { recursive: true });
@@ -99,7 +79,6 @@ export async function encodeVideo(videoId, inputPath) {
     console.log(`[Encoder] ${res.name} done`);
   }
 
-  // ── 2. Generate master playlist ─────────────────────────────
   const masterLines = ['#EXTM3U'];
   for (const res of RESOLUTIONS) {
     masterLines.push(
@@ -112,7 +91,6 @@ export async function encodeVideo(videoId, inputPath) {
   const { writeFile } = await import('node:fs/promises');
   await writeFile(masterPath, masterContent);
 
-  // ── 3. Extract thumbnail at 3 s ─────────────────────────────
   const thumbPath = path.join(workDir, 'thumbnail.jpg');
   await runCommand('ffmpeg', [
     '-i', inputPath,
@@ -123,15 +101,12 @@ export async function encodeVideo(videoId, inputPath) {
   ]);
   console.log('[Encoder] Thumbnail extracted');
 
-  // ── 4. Upload to S3 ─────────────────────────────────────────
   try {
     const s3Prefix = `videos/${videoId}`;
 
-    // Upload master playlist
     console.log('[Encoder] Uploading master playlist to S3…');
     await uploadFile(`${s3Prefix}/master.m3u8`, masterPath, 'application/x-mpegURL');
 
-    // Upload each resolution's playlist + segments
     for (const res of RESOLUTIONS) {
       const resDir = path.join(workDir, res.name);
       const files = await readdir(resDir);
@@ -145,14 +120,12 @@ export async function encodeVideo(videoId, inputPath) {
       console.log(`[Encoder] ${res.name} uploaded ✓`);
     }
 
-    // Upload thumbnail
     console.log('[Encoder] Uploading thumbnail…');
     const thumbnailUrl = await uploadFile(`${s3Prefix}/thumbnail.jpg`, thumbPath, 'image/jpeg');
     const masterPlaylistUrl = getPublicUrl(`${s3Prefix}/master.m3u8`);
 
     console.log('[Encoder] All files uploaded to S3 ✓');
 
-    // ── 5. Update DB ────────────────────────────────────────────
     await updateVideo(videoId, {
       thumbnail_url: thumbnailUrl,
       master_playlist_url: masterPlaylistUrl,
@@ -160,13 +133,11 @@ export async function encodeVideo(videoId, inputPath) {
       status: 'ready',
     });
 
-    // Initialize analytics row
     await upsertAnalytics(videoId, { totalViews: 0, concurrentViewers: 0 });
 
     console.log(`[Encoder] Video ${videoId} is ready ✓`);
   } catch (uploadErr) {
     console.error(`[Encoder] S3 upload / DB update failed for ${videoId}:`, uploadErr);
-    // Mark video as failed so the admin can see it
     await updateVideo(videoId, { status: 'failed' }).catch(() => {});
     throw uploadErr;
   }

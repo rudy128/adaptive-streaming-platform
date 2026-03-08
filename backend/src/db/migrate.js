@@ -1,9 +1,5 @@
 import { query } from '../config/db.js';
 
-/**
- * Run all database migrations.
- * Idempotent – safe to run multiple times.
- */
 async function migrate() {
   console.log('[DB] Running migrations…');
 
@@ -64,7 +60,6 @@ async function migrate() {
   console.log('[DB] Migrations complete ✓');
 }
 
-// Run directly: node src/db/migrate.js
 migrate()
   .then(() => process.exit(0))
   .catch((err) => {

@@ -12,19 +12,14 @@ import { getAnalyticsSnapshot } from '../services/analyticsService.js';
 import { recordSnapshot, purgeOldHistory } from '../db/repositories/concurrentHistoryRepository.js';
 import env from '../config/env.js';
 
-/** @type {Set<import('ws').WebSocket>} Admin dashboard connections */
 const adminClients = new Set();
 
-/**
- * Attach WebSocket server to an existing HTTP server.
- * @param {import('http').Server} server
- */
 export function initWebSocketServer(server) {
   const wss = new WebSocketServer({ server, path: '/ws' });
 
   wss.on('connection', (ws, req) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const role = url.searchParams.get('role'); // "admin" | "viewer"
+    const role = url.searchParams.get('role');
 
     if (role === 'admin') {
       handleAdminConnection(ws);
@@ -40,7 +35,6 @@ export function initWebSocketServer(server) {
     await broadcastAnalytics();
   }, env.heartbeatInterval);
 
-  // Record concurrent viewer snapshot every 10s for the graph
   setInterval(async () => {
     try {
       const snapshot = await getAnalyticsSnapshot();
@@ -56,7 +50,6 @@ export function initWebSocketServer(server) {
     }
   }, 10_000);
 
-  // Purge old history once per hour
   setInterval(() => {
     purgeOldHistory(24).catch(() => {});
   }, 3600_000);
@@ -64,13 +57,10 @@ export function initWebSocketServer(server) {
   console.log('[WS] WebSocket server initialized on /ws');
 }
 
-// ── Admin connections ─────────────────────────────────────────
-
 function handleAdminConnection(ws) {
   adminClients.add(ws);
   console.log('[WS] Admin connected');
 
-  // Send initial snapshot immediately
   sendAnalyticsToClient(ws);
 
   ws.on('close', () => {
@@ -112,8 +102,6 @@ async function broadcastAnalytics() {
   }
 }
 
-// ── Viewer connections ────────────────────────────────────────
-
 function handleViewerConnection(ws) {
   const sessionId = uuidv4();
   let currentVideoId = null;
@@ -129,7 +117,6 @@ function handleViewerConnection(ws) {
           const { videoId } = msg;
           if (!videoId) break;
 
-          // Remove from previous video if switching
           if (currentVideoId && currentVideoId !== videoId) {
             await removeViewer(currentVideoId, sessionId);
             await endView(sessionId);
@@ -177,6 +164,5 @@ function handleViewerConnection(ws) {
     console.error(`[WS] Viewer error (${sessionId}):`, err.message);
   });
 
-  // Send session ID to client
   ws.send(JSON.stringify({ type: 'session', sessionId }));
 }

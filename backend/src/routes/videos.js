@@ -9,10 +9,6 @@ import { getAnalyticsByVideoId } from '../db/repositories/analyticsRepository.js
 
 const router = Router();
 
-/**
- * GET /api/videos
- * Query params: ?published=true  → only ready videos (for users)
- */
 router.get('/', async (req, res, next) => {
   try {
     const published = req.query.published === 'true';
@@ -23,9 +19,6 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-/**
- * GET /api/videos/:id
- */
 router.get('/:id', async (req, res, next) => {
   try {
     const video = await getVideoById(req.params.id);
@@ -38,9 +31,6 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-/**
- * DELETE /api/videos/:id
- */
 router.delete('/:id', async (req, res, next) => {
   try {
     await deleteVideo(req.params.id);

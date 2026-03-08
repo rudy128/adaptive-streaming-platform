@@ -1,6 +1,3 @@
-/**
- * Standard JSON error handler for Express 5.
- */
 export function errorHandler(err, _req, res, _next) {
   console.error('[Error]', err);
 
@@ -10,9 +7,6 @@ export function errorHandler(err, _req, res, _next) {
   res.status(status).json({ error: message });
 }
 
-/**
- * 404 catch-all.
- */
 export function notFoundHandler(_req, res) {
   res.status(404).json({ error: 'Not Found' });
 }

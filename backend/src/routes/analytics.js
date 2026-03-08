@@ -5,10 +5,6 @@ import { getGlobalHistory } from '../db/repositories/concurrentHistoryRepository
 
 const router = Router();
 
-/**
- * GET /api/analytics
- * Returns aggregated analytics for admin dashboard (REST fallback).
- */
 router.get('/', async (_req, res, next) => {
   try {
     const snapshot = await getAnalyticsSnapshot();
@@ -18,10 +14,6 @@ router.get('/', async (_req, res, next) => {
   }
 });
 
-/**
- * GET /api/analytics/history?minutes=60
- * Returns time-series of concurrent viewer counts for graphing.
- */
 router.get('/history', async (req, res, next) => {
   try {
     const minutes = parseInt(req.query.minutes, 10) || 60;

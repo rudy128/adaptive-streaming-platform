@@ -4,7 +4,6 @@ import { mkdir } from 'node:fs/promises';
 
 const UPLOAD_DIR = '/tmp/uploads';
 
-// Ensure upload directory exists
 await mkdir(UPLOAD_DIR, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -29,7 +28,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 2 * 1024 * 1024 * 1024, // 2 GB
+    fileSize: 2 * 1024 * 1024 * 1024,
   },
 });
 

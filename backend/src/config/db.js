@@ -12,12 +12,6 @@ pool.on('error', (err) => {
   process.exit(1);
 });
 
-/**
- * Execute a parameterized SQL query.
- * @param {string} text  SQL query string
- * @param {any[]}  params  Query parameters
- * @returns {Promise<pg.QueryResult>}
- */
 export const query = (text, params) => pool.query(text, params);
 
 export default pool;

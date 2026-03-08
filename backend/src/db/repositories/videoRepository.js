@@ -1,17 +1,5 @@
 import { query } from '../../config/db.js';
 
-/**
- * @typedef {Object} Video
- * @property {string} id
- * @property {string} title
- * @property {string} description
- * @property {string|null} thumbnail_url
- * @property {string|null} master_playlist_url
- * @property {number} duration
- * @property {string} status
- * @property {string} created_at
- */
-
 export async function createVideo({ title, description = '' }) {
   const { rows } = await query(
     `INSERT INTO videos (title, description)

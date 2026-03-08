@@ -12,12 +12,6 @@ import env from '../config/env.js';
 
 const bucket = env.aws.bucket;
 
-/**
- * Upload a file to S3.
- * @param {string} key    S3 object key (e.g. "videos/abc/original.mp4")
- * @param {string} filePath  Absolute local file path
- * @param {string} [contentType]  MIME type
- */
 export async function uploadFile(key, filePath, contentType) {
   const fileStream = createReadStream(filePath);
   const { size } = await stat(filePath);
@@ -35,9 +29,6 @@ export async function uploadFile(key, filePath, contentType) {
   return getPublicUrl(key);
 }
 
-/**
- * Upload a buffer directly to S3.
- */
 export async function uploadBuffer(key, buffer, contentType) {
   await s3.send(
     new PutObjectCommand({
@@ -51,9 +42,6 @@ export async function uploadBuffer(key, buffer, contentType) {
   return getPublicUrl(key);
 }
 
-/**
- * Delete an object from S3.
- */
 export async function deleteObject(key) {
   await s3.send(
     new DeleteObjectCommand({
@@ -63,9 +51,6 @@ export async function deleteObject(key) {
   );
 }
 
-/**
- * Generate a pre-signed GET URL (expires in 1h by default).
- */
 export async function getPresignedUrl(key, expiresIn = 3600) {
   return getSignedUrl(
     s3,
@@ -74,9 +59,6 @@ export async function getPresignedUrl(key, expiresIn = 3600) {
   );
 }
 
-/**
- * Build a public URL for the given S3 key.
- */
 export function getPublicUrl(key) {
   if (env.aws.publicUrl) {
     return `${env.aws.publicUrl}/${key}`;

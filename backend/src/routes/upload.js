@@ -6,10 +6,6 @@ import { encodeVideo } from '../services/encodingService.js';
 
 const router = Router();
 
-/**
- * POST /api/upload
- * Multipart upload – expects a single file field called "video".
- */
 router.post('/', upload.single('video'), async (req, res, next) => {
   try {
     const { title, description } = req.body;
@@ -22,16 +18,13 @@ router.post('/', upload.single('video'), async (req, res, next) => {
       return res.status(400).json({ error: 'Title is required' });
     }
 
-    // 1. Create DB record
     const video = await createVideo({ title, description });
 
-    // 2. Upload original to S3 (async — don't block the response)
     const s3Key = `videos/${video.id}/original${getExtension(req.file.originalname)}`;
     uploadFile(s3Key, req.file.path, req.file.mimetype).catch((err) =>
       console.error('[Upload] S3 upload failed:', err),
     );
 
-    // 3. Kick off encoding in the background
     encodeVideo(video.id, req.file.path).catch((err) =>
       console.error(`[Encoder] Failed for ${video.id}:`, err),
     );

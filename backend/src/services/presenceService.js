@@ -1,19 +1,13 @@
 import redis from '../config/redis.js';
 import env from '../config/env.js';
 
-const VIEWER_TTL = Math.ceil(env.heartbeatTimeout / 1000); // seconds
+const VIEWER_TTL = Math.ceil(env.heartbeatTimeout / 1000);
 
-/**
- * Keys
- */
 const videoViewersKey = (videoId) => `video:${videoId}:viewers`;
 const globalActiveKey = () => 'global:active_users';
 const heartbeatKey = (sessionId) => `heartbeat:${sessionId}`;
 const sessionVideoKey = (sessionId) => `session:${sessionId}:video`;
 
-/**
- * Register a viewer as active on a video.
- */
 export async function addViewer(videoId, sessionId) {
   const pipeline = redis.pipeline();
   pipeline.sadd(videoViewersKey(videoId), sessionId);
@@ -23,9 +17,6 @@ export async function addViewer(videoId, sessionId) {
   await pipeline.exec();
 }
 
-/**
- * Refresh heartbeat – extends TTL.
- */
 export async function refreshHeartbeat(sessionId) {
   const videoId = await redis.get(sessionVideoKey(sessionId));
   if (!videoId) return null;
@@ -38,9 +29,6 @@ export async function refreshHeartbeat(sessionId) {
   return videoId;
 }
 
-/**
- * Remove a viewer explicitly (stop / pause).
- */
 export async function removeViewer(videoId, sessionId) {
   const pipeline = redis.pipeline();
   pipeline.srem(videoViewersKey(videoId), sessionId);
@@ -50,24 +38,14 @@ export async function removeViewer(videoId, sessionId) {
   await pipeline.exec();
 }
 
-/**
- * Get concurrent viewer count for a video.
- */
 export async function getConcurrentViewers(videoId) {
   return redis.scard(videoViewersKey(videoId));
 }
 
-/**
- * Get global active user count.
- */
 export async function getGlobalActiveUsers() {
   return redis.scard(globalActiveKey());
 }
 
-/**
- * Cleanup stale viewers (heartbeat expired).
- * Called periodically by the presence sweeper.
- */
 export async function cleanupStaleViewers() {
   const allActive = await redis.smembers(globalActiveKey());
   const stale = [];
