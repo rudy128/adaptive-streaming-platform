@@ -1,10 +1,12 @@
 import VideoPlayer from '../components/VideoPlayer.jsx';
 import { useViewerSocket } from '../hooks/useViewerSocket.js';
 
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
+
 export default function WatchPage({ video, onBack }) {
   const { play, pause, stop } = useViewerSocket();
 
-  const streamUrl = `/api/stream/${video.id}/master.m3u8`;
+  const streamUrl = `${API_BASE}/stream/${video.id}/master.m3u8`;
 
   function handlePlay() {
     play(video.id);

@@ -13,8 +13,15 @@ export function useAdminSocket() {
 
   useEffect(() => {
     function connect() {
-      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const ws = new WebSocket(`${protocol}://${window.location.host}/ws?role=admin`);
+      const wsBase = import.meta.env.VITE_WS_URL;
+      let wsUrl;
+      if (wsBase) {
+        wsUrl = `${wsBase}/ws?role=admin`;
+      } else {
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        wsUrl = `${protocol}://${window.location.host}/ws?role=admin`;
+      }
+      const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {

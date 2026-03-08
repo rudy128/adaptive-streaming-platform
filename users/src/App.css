@@ -93,6 +93,78 @@
 
 .video-player {
   margin-top: 1rem;
+  position: relative;
+}
+
+/* ── Quality selector ───────────────────────────────── */
+.quality-selector {
+  position: relative;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+.quality-btn {
+  background: #1e293b;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.quality-btn:hover {
+  background: #334155;
+}
+
+.quality-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 0.35rem;
+  list-style: none;
+  padding: 0.35rem 0;
+  margin-left: 0;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  min-width: 170px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
+  z-index: 20;
+}
+
+.quality-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.quality-option:hover {
+  background: #334155;
+}
+.quality-option.active {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.quality-badge {
+  font-size: 0.72rem;
+  background: #334155;
+  color: #94a3b8;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+.quality-bitrate {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-left: auto;
+  padding-left: 0.75rem;
 }
 
 /* ── Utility ────────────────────────────────────────── */
