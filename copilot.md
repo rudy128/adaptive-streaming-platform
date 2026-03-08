@@ -312,3 +312,7 @@ Start by generating:
 1) backend folder structure
 2) database schema
 3) express server setup
+
+
+
+I saw that we are using redis.. I don't think we can host this project on vercel.. so if I host backend on ec2 and frontend on vercel.. would that work??

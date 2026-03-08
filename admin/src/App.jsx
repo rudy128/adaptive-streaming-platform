@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect, useCallback } from 'react';
+import UploadForm from './components/UploadForm.jsx';
+import VideoList from './components/VideoList.jsx';
+import AnalyticsDashboard from './components/AnalyticsDashboard.jsx';
+import { getVideos } from './api/client.js';
+import './App.css';
+
+const TABS = ['videos', 'analytics'];
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [tab, setTab] = useState('videos');
+  const [videos, setVideos] = useState([]);
+
+  const fetchVideos = useCallback(async () => {
+    try {
+      const data = await getVideos();
+      setVideos(data);
+    } catch (err) {
+      console.error('Failed to fetch videos:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const data = await getVideos();
+        if (!cancelled) setVideos(data);
+      } catch (err) {
+        console.error('Failed to fetch videos:', err);
+      }
+    }
+
+    load();
+
+    const interval = setInterval(load, 10_000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="app">
+      <header className="app-header">
+        <h1>📺 Admin Dashboard</h1>
+        <nav>
+          {TABS.map((t) => (
+            <button
+              key={t}
+              className={`tab ${tab === t ? 'active' : ''}`}
+              onClick={() => setTab(t)}
+            >
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          ))}
+        </nav>
+      </header>
+
+      <main className="app-main">
+        {tab === 'videos' && (
+          <>
+            <UploadForm onUploadComplete={fetchVideos} />
+            <VideoList videos={videos} onRefresh={fetchVideos} />
+          </>
+        )}
+
+        {tab === 'analytics' && <AnalyticsDashboard />}
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
